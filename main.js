@@ -205,6 +205,8 @@ async function fetchCityWeather(city) {
   const data = await res.json();
 
   loading.classList.remove("active");
+
+
   if (data.cod !== 200) {
     errorMsg.innerText = "City not found";
     errorBox.classList.add("active");
@@ -218,6 +220,8 @@ async function fetchCityWeather(city) {
 /* ================= RE-ANIMATE ================= */
 function reanimate(el) {
   el.classList.remove("active");
+
+  
   void el.offsetWidth;
   el.classList.add("active");
 }

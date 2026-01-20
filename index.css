@@ -172,6 +172,8 @@ h1 {
 }
 
 .aqi-bar {
+
+
   width: 90%;
   height: 8px;
   background: #ddd;
@@ -182,6 +184,8 @@ h1 {
 .aqi-bar span {
   display: block;
   height: 100%;
+
+  
   width: 0%;
   border-radius: 20px;
   transition: width 0.6s ease, background-color 0.6s ease;
