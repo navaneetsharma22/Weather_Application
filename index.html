@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="index.css" />
+</head>
+
+<body>
+  <div class="wrapper">
+    <h1>Weather App</h1>
+
+    <!-- 🌙 Theme Toggle -->
+    <button class="theme-toggle" data-themeToggle>🌙</button>
+
+    <div class="tab-container">
+      <p class="tab current-tab" data-userWeather>Your Weather</p>
+      <p class="tab" data-searchWeather>Search Weather</p>
+    </div>
+
+    <div class="weather-container">
+
+      <!-- Grant Location -->
+      <div class="sub-container grant-location-container">
+        <img src="./image/location.png" width="80" />
+        <p>Grant Location Access</p>
+        <p>Allow access to get weather information</p>
+        <button class="Btn" data-grantAccess>Grant Access</button>
+      </div>
+
+      <!-- Search -->
+      <form class="form-container" data-searchForm>
+        <input type="text" placeholder="Search for city..." data-searchInput />
+        <button class="btn">
+          <img src="./image/search.png" width="20" />
+        </button>
+      </form>
+
+      <!-- Loading -->
+      <div class="sub-container loading-container">
+        <img src="./image/loading.gif" width="140" />
+        <p>Loading</p>
+      </div>
+
+      <!-- Error -->
+      <div class="sub-container error-container">
+        <p data-errorMessage></p>
+      </div>
+
+      <!-- Weather Info -->
+      <div class="sub-container user-info-container">
+
+        <div class="name">
+          <p data-cityName></p>
+          <img data-countryIcon />
+        </div>
+
+        <p data-weatherDesc></p>
+        <img data-weatherIcon />
+        <p data-temrature></p>
+
+        <div class="parameter-container">
+
+          <div class="parameter">
+            <img src="./image/wind.png" />
+            <p>Wind</p>
+            <p data-windspeed></p>
+          </div>
+
+          <div class="parameter">
+            <img src="./image/humidity.png" />
+            <p>Humidity</p>
+            <p data-humidity></p>
+          </div>
+
+          <div class="parameter">
+            <img src="./image/cloud.png" />
+            <p>Clouds</p>
+            <p data-cloudiness></p>
+          </div>
+
+          <!-- 🌍 AQI -->
+          <div class="parameter">
+            <img src="./image/aqi.png" />
+            <p>AQI</p>
+            <p data-aqi></p>
+            <div class="aqi-bar">
+              <span data-aqi-fill></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
