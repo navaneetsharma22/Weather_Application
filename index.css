@@ -1,0 +1,280 @@
+/* ================= RESET ================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+
+/* ================= THEME VARIABLES ================= */
+:root {
+  --dark1: #112d4e;
+  --dark2: #0e5cba;
+  --light: #d8d2d2;
+}
+
+/* ================= LAYOUT ================= */
+.wrapper {
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--dark1), var(--dark2));
+  color: var(--light);
+  position: relative;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+h1 {
+  text-align: center;
+  padding-top: 20px;
+}
+
+/* ================= THEME TOGGLE ================= */
+.theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: var(--dark1);
+  border: none;
+  border-radius: 50%;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: rgb(250, 246, 246);
+}
+
+/* ================= TABS ================= */
+.tab-container {
+  width: 90%;
+  max-width: 550px;
+  margin: 3rem auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+.tab {
+  cursor: pointer;
+  padding: 6px 14px;
+  transition: 0.3s;
+}
+
+.current-tab {
+  background: var(--dark1);
+  border-radius: 6px;
+}
+
+/* ================= CONTAINERS ================= */
+.weather-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sub-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sub-container.active {
+  display: flex;
+  animation: fadeUp 0.5s ease forwards;
+}
+
+/* ================= SEARCH FORM ================= */
+.form-container {
+  display: none;
+  width: 90%;
+  max-width: 550px;
+  gap: 10px;
+  margin-bottom: 2rem;
+}
+
+.form-container.active {
+  display: flex;
+}
+
+.form-container input {
+  all: unset;
+  background: var(--dark1);
+  padding: 10px 20px;
+  border-radius: 10px;
+  width: 100%;
+}
+
+/* ================= BUTTONS ================= */
+.Btn,
+.btn {
+  all: unset;
+  background: var(--dark1);
+  padding: 10px 25px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.Btn:hover,
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ================= WEATHER INFO ================= */
+.name {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ================= CARDS ================= */
+.parameter-container {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.parameter {
+  width: 150px;
+  height: 150px;
+  background: var(--dark1);
+  border-radius: 12px;
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.parameter:hover {
+  transform: translateY(-6px);
+}
+
+.parameter img {
+  width: 48px;
+  height: 48px;
+}
+
+.parameter p:first-of-type {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.parameter p:last-of-type {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* ================= AQI ================= */
+.aqi-text {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.aqi-bar {
+  width: 90%;
+  height: 8px;
+  background: #ddd;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.aqi-bar span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: 20px;
+  transition: width 0.6s ease, background-color 0.6s ease;
+}
+
+/* ================= LOADING ================= */
+.loading-container img {
+  animation: pulse 1.2s infinite;
+}
+
+/* ================= ANIMATIONS ================= */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* ================================================= */
+/* 🌞 LIGHT MODE (FINAL & POLISHED) */
+/* ================================================= */
+
+.light {
+  --dark1: #062040;
+  --dark2: #e6f0fa;
+  --light: #0f172a;
+}
+
+.light .wrapper {
+  background: linear-gradient(160deg, #f4f9ff, #e6f0fa);
+  color: #0f172a;
+}
+
+/* Tabs */
+.light .current-tab {
+  background:  #0d4a95;
+  color: #e4dede;
+}
+
+/* Cards */
+.light .parameter {
+  
+  background: #0d4a95;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.light .parameter:hover {
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+}
+
+/* Text */
+.light h1,
+.light p {
+  color: #e4e7ee;
+}
+
+/* Search Input */
+.light .form-container input {
+  background: #dad7d7;
+  color: #0f172a;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+}
+
+/* Buttons */
+.light .Btn,
+.light .btn {
+  background: #0d4a95;
+  color: #7d7878;
+}
+
+.light .Btn:hover,
+.light .btn:hover {
+  background: #1d4ed8;
+}
+
+/* AQI bar background */
+.light .aqi-bar {
+  background: #031335;
+}
+
+/* Smooth theme transition */
+.wrapper,
+.parameter,
+.form-container input {
+  transition: background 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
+}
