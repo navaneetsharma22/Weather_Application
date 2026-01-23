@@ -3,6 +3,7 @@ const userTab = document.querySelector("[data-userWeather]");
 const searchTab = document.querySelector("[data-searchWeather]");
 const grantContainer = document.querySelector(".grant-location-container");
 const searchForm = document.querySelector("[data-searchForm]");
+const searchInput = document.querySelector("[data-searchInput]");
 const loading = document.querySelector(".loading-container");
 const userInfo = document.querySelector(".user-info-container");
 const errorBox = document.querySelector(".error-container");
@@ -24,91 +25,149 @@ themeBtn.addEventListener("click", () => {
   themeBtn.innerText = wrapper.classList.contains("light") ? "☀️" : "🌙";
 });
 
-/* ================= TABS ================= */
+/* ================= TAB SWITCH ================= */
 userTab.addEventListener("click", () => switchTab(userTab));
 searchTab.addEventListener("click", () => switchTab(searchTab));
 
 function switchTab(tab) {
-  if (tab !== currentTab) {
-    currentTab.classList.remove("current-tab");
-    tab.classList.add("current-tab");
-    currentTab = tab;
+  if (tab === currentTab) return;
 
-    userInfo.classList.remove("active");
-    errorBox.classList.remove("active");
-    grantContainer.classList.remove("active");
-    searchForm.classList.remove("active");
+  currentTab.classList.remove("current-tab");
+  tab.classList.add("current-tab");
+  currentTab = tab;
 
-    if (tab === searchTab) {
-      searchForm.classList.add("active");
-    } else {
-      getFromSession();
-    }
+  hideAll();
+
+  if (tab === searchTab) {
+    searchForm.classList.add("active");
+  } else {
+    getFromSession();
   }
+}
+
+/* ================= UI HELPERS ================= */
+function hideAll() {
+  grantContainer.classList.remove("active");
+  searchForm.classList.remove("active");
+  loading.classList.remove("active");
+  userInfo.classList.remove("active");
+  errorBox.classList.remove("active");
 }
 
 /* ================= SESSION ================= */
 function getFromSession() {
-  searchForm.classList.remove("active");
+  hideAll();
   const coords = sessionStorage.getItem("user-coordinates");
+
   if (!coords) {
     grantContainer.classList.add("active");
   } else {
-    fetchWeather(JSON.parse(coords));
+    fetchWeatherByCoords(JSON.parse(coords));
   }
 }
 
 /* ================= LOCATION ================= */
 document.querySelector("[data-grantAccess]").addEventListener("click", () => {
-  navigator.geolocation.getCurrentPosition(pos => {
-    const coords = {
-      lat: pos.coords.latitude,
-      lon: pos.coords.longitude
-    };
-    sessionStorage.setItem("user-coordinates", JSON.stringify(coords));
-    fetchWeather(coords);
-  });
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const coords = {
+        lat: pos.coords.latitude,
+        lon: pos.coords.longitude
+      };
+      sessionStorage.setItem("user-coordinates", JSON.stringify(coords));
+      fetchWeatherByCoords(coords);
+    },
+    () => showError("Location access denied")
+  );
 });
 
-/* ================= WEATHER ================= */
-async function fetchWeather({ lat, lon }) {
+/* ================= FETCH BY COORDS ================= */
+async function fetchWeatherByCoords({ lat, lon }) {
+  hideAll();
   loading.classList.add("active");
-  grantContainer.classList.remove("active");
 
-  const res = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
-  );
-  const data = await res.json();
+  try {
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
+    );
+    const data = await res.json();
 
-  loading.classList.remove("active");
-  userInfo.classList.add("active");
-  renderWeather(data);
+    if (data.cod !== 200) throw new Error();
+
+    renderWeather(data);
+  } catch {
+    showError("Unable to fetch weather");
+  }
 }
 
+/* ================= SEARCH ================= */
+searchForm.addEventListener("submit", e => {
+  e.preventDefault();
+  const city = searchInput.value.trim();
+  if (!city) return;
+  fetchWeatherByCity(city);
+});
+
+async function fetchWeatherByCity(city) {
+  hideAll();
+  loading.classList.add("active");
+
+  try {
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
+    );
+    const data = await res.json();
+
+    if (data.cod !== 200) throw new Error();
+
+    renderWeather(data);
+  } catch {
+    showError("City not found");
+  }
+}
+
+/* ================= RENDER WEATHER ================= */
 function renderWeather(data) {
+  hideAll();
+  userInfo.classList.add("active");
+
   document.querySelector("[data-cityName]").innerText = data.name;
   document.querySelector("[data-countryIcon]").src =
-    `https://flagcdn.com/144x108/${data.sys.country.toLowerCase()}.png`;
+    `https://flagcdn.com/48x36/${data.sys.country.toLowerCase()}.png`;
+
   document.querySelector("[data-weatherDesc]").innerText =
     data.weather[0].description;
+
   document.querySelector("[data-weatherIcon]").src =
     `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
 
   animateTemp(document.querySelector("[data-temrature]"), data.main.temp);
 
-  document.querySelector("[data-windspeed]").innerText = `${data.wind.speed} m/s`;
-  document.querySelector("[data-humidity]").innerText = `${data.main.humidity}%`;
-  document.querySelector("[data-cloudiness]").innerText = `${data.clouds.all}%`;
+  document.querySelector("[data-windspeed]").innerText =
+    `${data.wind.speed} m/s`;
+  document.querySelector("[data-humidity]").innerText =
+    `${data.main.humidity}%`;
+  document.querySelector("[data-cloudiness]").innerText =
+    `${data.clouds.all}%`;
 
   fetchAQI(data.coord.lat, data.coord.lon);
   reanimate(userInfo);
 }
 
+/* ================= ERROR ================= */
+function showError(msg) {
+  hideAll();
+  errorMsg.innerText = msg;
+  errorBox.classList.add("active");
+}
+
 /* ================= TEMP ANIMATION ================= */
 function animateTemp(el, value) {
   let start = 0;
+  const step = value / 40;
+
   const i = setInterval(() => {
-    start += value / 40;
+    start += step;
     if (start >= value) {
       el.innerText = `${value.toFixed(1)} °C`;
       clearInterval(i);
@@ -118,13 +177,51 @@ function animateTemp(el, value) {
   }, 20);
 }
 
-/* ================= AQI CALCULATION (MS STYLE) ================= */
+/* ================= AQI ================= */
+async function fetchAQI(lat, lon) {
+  try {
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`
+    );
+    const data = await res.json();
 
+    if (!data.list || !data.list.length) return showAQINotAvailable();
+
+    const c = data.list[0].components;
+    if (!c.pm2_5 && !c.pm10 && !c.co) return showAQINotAvailable();
+
+    const finalAQI = Math.max(
+      aqiPM25(c.pm2_5 || 0),
+      aqiPM10(c.pm10 || 0),
+      aqiCO(c.co || 0)
+    );
+
+    const visual = getAQIVisual(finalAQI);
+
+    document.querySelector("[data-aqi-value]").innerText = finalAQI;
+    document.querySelector("[data-aqi-emoji]").innerText = visual.emoji;
+
+    const bar = document.querySelector("[data-aqi-fill]");
+    bar.style.width = `${Math.min((finalAQI / 500) * 100, 100)}%`;
+    bar.style.backgroundColor = visual.color;
+  } catch {
+    showAQINotAvailable();
+  }
+}
+
+function showAQINotAvailable() {
+  document.querySelector("[data-aqi-value]").innerText = "--";
+  document.querySelector("[data-aqi-emoji]").innerText = "❌";
+  const bar = document.querySelector("[data-aqi-fill]");
+  bar.style.width = "100%";
+  bar.style.backgroundColor = "#9ca3af";
+}
+
+/* ================= AQI CALC HELPERS ================= */
 function calcAQI(Cp, BP_lo, BP_hi, I_lo, I_hi) {
   return Math.round(((I_hi - I_lo) / (BP_hi - BP_lo)) * (Cp - BP_lo) + I_lo);
 }
 
-// PM2.5
 function aqiPM25(pm) {
   if (pm <= 12) return calcAQI(pm, 0, 12, 0, 50);
   if (pm <= 35.4) return calcAQI(pm, 12.1, 35.4, 51, 100);
@@ -134,7 +231,6 @@ function aqiPM25(pm) {
   return calcAQI(pm, 250.5, 500, 301, 500);
 }
 
-// PM10
 function aqiPM10(pm) {
   if (pm <= 54) return calcAQI(pm, 0, 54, 0, 50);
   if (pm <= 154) return calcAQI(pm, 55, 154, 51, 100);
@@ -144,7 +240,6 @@ function aqiPM10(pm) {
   return calcAQI(pm, 425, 604, 301, 500);
 }
 
-// CO (µg/m³ → ppm)
 function aqiCO(co) {
   const ppm = co / 1145;
   if (ppm <= 4.4) return calcAQI(ppm, 0, 4.4, 0, 50);
@@ -164,64 +259,9 @@ function getAQIVisual(aqi) {
   return { emoji: "☠️☠️", color: "#7e0023" };
 }
 
-/* ================= FETCH AQI ================= */
-async function fetchAQI(lat, lon) {
-  const res = await fetch(
-    `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`
-  );
-  const data = await res.json();
-
-  const c = data.list[0].components;
-
-  const finalAQI = Math.max(
-    aqiPM25(c.pm2_5),
-    aqiPM10(c.pm10),
-    aqiCO(c.co)
-  );
-
-  const visual = getAQIVisual(finalAQI);
-
-  document.querySelector("[data-aqi-value]").innerText = finalAQI;
-  document.querySelector("[data-aqi-emoji]").innerText = visual.emoji;
-
-  const bar = document.querySelector("[data-aqi-fill]");
-  bar.style.width = `${Math.min((finalAQI / 500) * 100, 100)}%`;
-  bar.style.backgroundColor = visual.color;
-}
-
-/* ================= SEARCH ================= */
-searchForm.addEventListener("submit", e => {
-  e.preventDefault();
-  fetchCityWeather(document.querySelector("[data-searchInput]").value);
-});
-
-async function fetchCityWeather(city) {
-  loading.classList.add("active");
-  userInfo.classList.remove("active");
-
-  const res = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
-  );
-  const data = await res.json();
-
-  loading.classList.remove("active");
-
-
-  if (data.cod !== 200) {
-    errorMsg.innerText = "City not found";
-    errorBox.classList.add("active");
-    return;
-  }
-
-  userInfo.classList.add("active");
-  renderWeather(data);
-}
-
 /* ================= RE-ANIMATE ================= */
 function reanimate(el) {
   el.classList.remove("active");
-
-  
   void el.offsetWidth;
   el.classList.add("active");
 }
