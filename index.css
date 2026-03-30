@@ -446,7 +446,7 @@ h1 {
 /* ================= LIGHT MODE ================= */
 .light {
   --dark1: #f7fbff;
-  --dark2: #d9e8fb;
+  --dark2: #2d3a4b;
   --light: #1f2937;
   --panel: rgba(255, 255, 255, 0.72);
   --panel-strong: rgba(255, 255, 255, 0.94);
@@ -457,9 +457,9 @@ h1 {
 
 .light .wrapper {
   background:
-    radial-gradient(circle at top left, rgba(59, 130, 246, 0.44), transparent 34%),
-    radial-gradient(circle at 85% 10%, rgba(56, 189, 248, 0.38), transparent 28%),
-    linear-gradient(160deg, #ebf5ff, #b9d8fb);
+    radial-gradient(circle at top left, rgba(148, 163, 184, 0.16), transparent 34%),
+    radial-gradient(circle at 85% 10%, rgba(203, 213, 225, 0.2), transparent 28%),
+    linear-gradient(160deg, #f5f5f5, #d9dde3);
   color: #1f2937;
 }
 
