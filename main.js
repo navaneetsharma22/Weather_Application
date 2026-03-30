@@ -69,10 +69,10 @@ function getFromSession() {
 /* ================= LOCATION ================= */
 document.querySelector("[data-grantAccess]").addEventListener("click", () => {
   navigator.geolocation.getCurrentPosition(
-    pos => {
+    (pos) => {
       const coords = {
         lat: pos.coords.latitude,
-        lon: pos.coords.longitude
+        lon: pos.coords.longitude,
       };
       sessionStorage.setItem("user-coordinates", JSON.stringify(coords));
       fetchWeatherByCoords(coords);
@@ -101,7 +101,7 @@ async function fetchWeatherByCoords({ lat, lon }) {
 }
 
 /* ================= SEARCH ================= */
-searchForm.addEventListener("submit", e => {
+searchForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const city = searchInput.value.trim();
   if (!city) return;
