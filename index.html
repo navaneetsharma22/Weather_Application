@@ -4,8 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#08101d" />
   <title>Weather App</title>
 
+  <link rel="icon" type="image/x-icon" href="./image/favicon.ico" />
+  <link rel="apple-touch-icon" href="./image/favicon.ico" />
+  <link rel="manifest" href="./site.webmanifest" />
   <link
     href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;700&display=swap"
     rel="stylesheet"
@@ -14,7 +18,7 @@
 </head>
 
 <body>
-  <div class="wrapper">
+  <div class="wrapper" data-weatherTheme="default">
     <button class="theme-toggle" data-themeToggle aria-label="Toggle theme">🌙</button>
 
     <div class="app-shell">
@@ -22,10 +26,29 @@
         <p class="eyebrow">Live Forecast Dashboard</p>
         <h1>Weather App</h1>
         <p class="subtitle">
-          Check your local conditions or search any city with a cleaner interface while keeping the
-          current light and dark mode behavior unchanged.
+          Track today, the next few hours, and the coming days with faster search, saved places,
+          install support, and richer weather insights.
         </p>
       </header>
+
+      <section class="top-toolbar">
+        <div class="toolbar-group card-surface quick-actions">
+          <button class="toolbar-btn active" type="button" data-unitToggle data-unit="metric">°C</button>
+          <button class="toolbar-btn" type="button" data-unitToggle data-unit="imperial">°F</button>
+          <button class="toolbar-btn" type="button" data-refreshWeather>Refresh</button>
+        </div>
+
+        <div class="toolbar-group card-surface saved-locations-panel">
+          <div class="saved-row">
+            <p class="toolbar-label">Favorites</p>
+            <div class="saved-chip-list" data-favoritesList></div>
+          </div>
+          <div class="saved-row">
+            <p class="toolbar-label">Recent</p>
+            <div class="saved-chip-list" data-recentList></div>
+          </div>
+        </div>
+      </section>
 
       <div class="tab-container">
         <p class="tab current-tab" data-userWeather>Your Weather</p>
@@ -40,10 +63,18 @@
           <button class="Btn" data-grantAccess>Grant Access</button>
         </div>
 
-        <form class="form-container" data-searchForm>
-          <input type="text" placeholder="Search for city..." data-searchInput />
+        <form class="form-container" data-searchForm autocomplete="off">
+          <div class="search-input-group">
+            <input type="text" placeholder="Search for city..." data-searchInput />
+            <div class="autocomplete-list" data-autocompleteList></div>
+          </div>
+
+          <button class="btn icon-btn" type="button" aria-label="Use voice search" data-voiceSearch>
+            <span class="action-symbol">Mic</span>
+          </button>
+
           <button class="btn search-btn" type="submit" aria-label="Search city weather">
-            <img src="./image/search.png" width="20" alt="Search" />
+            <span class="action-symbol">Go</span>
           </button>
         </form>
 
@@ -67,12 +98,23 @@
 
               <p class="weather-label">Current Conditions</p>
               <p data-weatherDesc></p>
-              <p data-temrature></p>
+              <p class="temperature-row">
+                <span data-temperature></span>
+                <button class="favorite-btn" type="button" data-favoriteBtn aria-label="Save city to favorites">
+                  ☆
+                </button>
+              </p>
+              <p class="meta-line" data-localTime></p>
             </div>
 
             <div class="weather-visual">
               <img data-weatherIcon alt="Weather icon" />
             </div>
+          </section>
+
+          <section class="alert-banner card-surface" data-alertBanner hidden>
+            <p class="alert-title" data-alertTitle></p>
+            <p class="alert-copy" data-alertCopy></p>
           </section>
 
           <div class="parameter-container">
@@ -106,6 +148,55 @@
               </div>
             </div>
           </div>
+
+          <section class="details-grid">
+            <article class="detail-card card-surface">
+              <p>Feels Like</p>
+              <strong data-feelsLike></strong>
+            </article>
+            <article class="detail-card card-surface">
+              <p>Pressure</p>
+              <strong data-pressure></strong>
+            </article>
+            <article class="detail-card card-surface">
+              <p>Visibility</p>
+              <strong data-visibility></strong>
+            </article>
+            <article class="detail-card card-surface">
+              <p>Sunrise</p>
+              <strong data-sunrise></strong>
+            </article>
+            <article class="detail-card card-surface">
+              <p>Sunset</p>
+              <strong data-sunset></strong>
+            </article>
+            <article class="detail-card card-surface">
+              <p>Min / Max</p>
+              <strong data-minMax></strong>
+            </article>
+          </section>
+
+          <section class="forecast-panel card-surface">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">Next Hours</p>
+                <h2>Hourly Forecast</h2>
+              </div>
+            </div>
+            <div class="hourly-forecast" data-hourlyForecast></div>
+          </section>
+
+          <section class="forecast-panel card-surface">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">Next 5 Days</p>
+                <h2>Daily Forecast</h2>
+              </div>
+            </div>
+            <div class="daily-forecast" data-dailyForecast></div>
+          </section>
+
+          <button class="install-btn Btn" type="button" data-installBtn hidden>Install App</button>
         </div>
       </div>
     </div>

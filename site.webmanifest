@@ -1,0 +1,21 @@
+{
+  "name": "Weather App",
+  "short_name": "Weather",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#08101d",
+  "theme_color": "#08101d",
+  "description": "A weather dashboard with forecast, AQI, saved cities, and install support.",
+  "icons": [
+    {
+      "src": "./image/location.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./image/location.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
