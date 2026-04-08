@@ -1,20 +1,16 @@
 /* ================= SELECTORS ================= */
-const userTab = document.querySelector("[data-userWeather]");
-const searchTab = document.querySelector("[data-searchWeather]");
-const grantContainer = document.querySelector(".grant-location-container");
+const grantContainer = document.getElementById("location-grant");
 const searchForm = document.querySelector("[data-searchForm]");
 const searchInput = document.querySelector("[data-searchInput]");
 const autocompleteList = document.querySelector("[data-autocompleteList]");
 const loading = document.querySelector(".loading-container");
-const userInfo = document.querySelector(".user-info-container");
+const userInfo = document.querySelector("#weather-dashboard");
 const errorBox = document.querySelector(".error-container");
 const errorMsg = document.querySelector("[data-errorMessage]");
 const themeBtn = document.querySelector("[data-themeToggle]");
 const wrapper = document.querySelector(".wrapper");
 const favoritesList = document.querySelector("[data-favoritesList]");
 const recentList = document.querySelector("[data-recentList]");
-const hourlyForecast = document.querySelector("[data-hourlyForecast]");
-const dailyForecast = document.querySelector("[data-dailyForecast]");
 const favoriteBtn = document.querySelector("[data-favoriteBtn]");
 const localTimeEl = document.querySelector("[data-localTime]");
 const alertBanner = document.querySelector("[data-alertBanner]");
@@ -25,11 +21,23 @@ const voiceSearchBtn = document.querySelector("[data-voiceSearch]");
 const refreshBtn = document.querySelector("[data-refreshWeather]");
 const unitButtons = document.querySelectorAll("[data-unitToggle]");
 
+const searchToggle = document.getElementById("search-toggle");
+const searchPanel = document.getElementById("search-panel");
+const seeMoreBtn = document.querySelector("[data-seeMoreBtn]");
+const detailsModal = document.getElementById("details-modal");
+const closeModal = document.getElementById("close-modal");
+
 const cityNameEl = document.querySelector("[data-cityName]");
+const cityNameSidebar = document.querySelector("[data-cityNameSidebar]");
+const countryCodeEl = document.querySelector("[data-countryCode]");
+const navDateEl = document.querySelector("[data-navDate]");
 const countryIconEl = document.querySelector("[data-countryIcon]");
 const weatherDescEl = document.querySelector("[data-weatherDesc]");
 const weatherIconEl = document.querySelector("[data-weatherIcon]");
 const temperatureEl = document.querySelector("[data-temperature]");
+const tempHighEl = document.querySelector("[data-tempHigh]");
+const tempLowEl = document.querySelector("[data-tempLow]");
+
 const windspeedEl = document.querySelector("[data-windspeed]");
 const humidityEl = document.querySelector("[data-humidity]");
 const cloudinessEl = document.querySelector("[data-cloudiness]");
@@ -39,6 +47,11 @@ const visibilityEl = document.querySelector("[data-visibility]");
 const sunriseEl = document.querySelector("[data-sunrise]");
 const sunsetEl = document.querySelector("[data-sunset]");
 const minMaxEl = document.querySelector("[data-minMax]");
+
+const recentCardsEl = document.querySelector("[data-recentCards]");
+const forecastLabels = document.getElementById("forecast-labels");
+const forecastTemps = document.getElementById("forecast-temps");
+const curvePath = document.getElementById("curve-path");
 
 const API_KEY = "3d6b3bc817ad02eb2818c0ad867eb7c3";
 const STORAGE_KEYS = {
@@ -51,7 +64,6 @@ const STORAGE_KEYS = {
 };
 
 /* ================= INITIAL STATE ================= */
-let currentTab = userTab;
 let deferredInstallPrompt = null;
 let autocompleteController = null;
 let searchDebounce = null;
@@ -67,7 +79,6 @@ const state = {
   lastTarget: readStorageObject(STORAGE_KEYS.lastViewed),
 };
 
-currentTab.classList.add("current-tab");
 applyTheme(state.theme);
 syncUnitButtons();
 renderSavedLists();
@@ -75,14 +86,15 @@ registerServiceWorker();
 restoreLastView();
 
 /* ================= EVENT LISTENERS ================= */
+searchToggle.addEventListener("click", () => searchPanel.classList.toggle("hidden"));
+seeMoreBtn.addEventListener("click", () => detailsModal.removeAttribute("hidden"));
+closeModal.addEventListener("click", () => detailsModal.setAttribute("hidden", "true"));
+
 themeBtn.addEventListener("click", () => {
   state.theme = wrapper.classList.contains("light") ? "dark" : "light";
   localStorage.setItem(STORAGE_KEYS.theme, state.theme);
   applyTheme(state.theme);
 });
-
-userTab.addEventListener("click", () => switchTab(userTab));
-searchTab.addEventListener("click", () => switchTab(searchTab));
 
 document.querySelector("[data-grantAccess]").addEventListener("click", requestUserLocation);
 
@@ -137,42 +149,21 @@ window.addEventListener("appinstalled", () => {
 });
 
 /* ================= VIEW CONTROL ================= */
-function switchTab(tab) {
-  if (tab === currentTab) return;
-
-  currentTab.classList.remove("current-tab");
-  tab.classList.add("current-tab");
-  currentTab = tab;
-
-  hideAll();
-
-  if (tab === searchTab) {
-    searchForm.classList.add("active");
-    if (state.currentWeather) userInfo.classList.add("active");
-    return;
-  }
-
-  restoreLastView();
-}
-
 function hideAll() {
-  grantContainer.classList.remove("active");
-  searchForm.classList.remove("active");
-  loading.classList.remove("active");
-  userInfo.classList.remove("active");
-  errorBox.classList.remove("active");
+  grantContainer.style.display = "none";
+  loading.style.display = "none";
+  userInfo.style.display = "none";
+  errorBox.style.display = "none";
 }
 
 function showLoading() {
   hideAll();
-  loading.classList.add("active");
-  if (currentTab === searchTab) searchForm.classList.add("active");
+  loading.style.display = "flex";
 }
 
 function showUserInfo() {
   hideAll();
-  userInfo.classList.add("active");
-  if (currentTab === searchTab) searchForm.classList.add("active");
+  userInfo.style.display = "flex";
 }
 
 function restoreLastView() {
@@ -196,7 +187,8 @@ function restoreLastView() {
     return;
   }
 
-  grantContainer.classList.add("active");
+  hideAll();
+  grantContainer.style.display = "flex";
 }
 
 /* ================= THEME ================= */
@@ -464,14 +456,19 @@ function renderWeather(weather, forecast) {
   setWeatherTheme(weather.weather[0]?.main, weather.weather[0]?.icon);
 
   cityNameEl.innerText = weather.name;
-  countryIconEl.src = `https://flagcdn.com/48x36/${weather.sys.country.toLowerCase()}.png`;
-  countryIconEl.alt = `${weather.sys.country} flag`;
+  if (cityNameSidebar) cityNameSidebar.innerText = `${weather.name}, ${weather.sys.country}`;
+  if (countryCodeEl) countryCodeEl.innerText = weather.sys.country;
+  
+  if (navDateEl) navDateEl.innerText = new Date((weather.dt + weather.timezone) * 1000).toLocaleDateString([], {
+    weekday: "long", month: "long", day: "numeric", timeZone: "UTC"
+  });
 
   weatherDescEl.innerText = weather.weather[0].description;
-  weatherIconEl.src = `https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`;
-  weatherIconEl.alt = weather.weather[0].description;
-
+  
   animateTemp(temperatureEl, weather.main.temp);
+  if (tempHighEl) tempHighEl.innerText = formatTemperature(weather.main.temp_max);
+  if (tempLowEl) tempLowEl.innerText = formatTemperature(weather.main.temp_min);
+
   windspeedEl.innerText = formatWind(weather.wind.speed);
   humidityEl.innerText = `${weather.main.humidity}%`;
   cloudinessEl.innerText = `${weather.clouds.all}%`;
@@ -513,18 +510,69 @@ function renderHourlyForecast(items) {
 }
 
 function renderDailyForecast(items) {
-  dailyForecast.innerHTML = items
-    .map((item) => {
-      return `
-        <article class="daily-card">
-          <p>${item.label}</p>
-          <img src="https://openweathermap.org/img/wn/${item.icon}@2x.png" alt="${item.description}" />
-          <strong>${formatTemperature(item.max)}</strong>
-          <span>${formatTemperature(item.min)} • ${item.rainChance}</span>
-        </article>
-      `;
-    })
-    .join("");
+  if (!curvePath) return;
+
+  forecastLabels.innerHTML = "";
+  forecastTemps.innerHTML = "";
+
+  const containerW = document.querySelector(".forecast-graph").clientWidth || 1000;
+  curvePath.setAttribute("d", "");
+  
+  if (!items.length) return;
+
+  let maxTemp = -Infinity;
+  let minTemp = Infinity;
+  items.forEach(item => {
+    if (item.max > maxTemp) maxTemp = item.max;
+    if (item.min < minTemp) minTemp = item.min;
+  });
+
+  const range = (maxTemp - minTemp) || 1;
+  const paddingY = 20; 
+  const availableH = 100 - (paddingY * 2);
+
+  const points = [];
+  const svgNS = "http://www.w3.org/2000/svg";
+  
+  // clear previous points
+  document.querySelectorAll(".curve-point").forEach(el => el.remove());
+
+  const svg = document.getElementById("weekly-curve");
+
+  items.forEach((item, index) => {
+    const x = (index / (items.length - 1)) * 1000;
+    const normalizedY = (item.max - minTemp) / range;
+    const y = 100 - paddingY - (normalizedY * availableH);
+    points.push({x, y});
+
+    const l = document.createElement("span");
+    l.innerText = item.label;
+    forecastLabels.appendChild(l);
+
+    const t = document.createElement("span");
+    t.innerText = formatTemperature(item.max);
+    forecastTemps.appendChild(t);
+
+    const circle = document.createElementNS(svgNS, "circle");
+    circle.setAttribute("cx", x);
+    circle.setAttribute("cy", y);
+    circle.setAttribute("r", index === 0 ? "7" : "5");
+    circle.setAttribute("class", index === 0 ? "curve-point active" : "curve-point");
+    svg.appendChild(circle);
+  });
+
+  // Calculate bezier curve
+  let d = `M ${points[0].x},${points[0].y}`;
+  for (let i = 0; i < points.length; i++) {
+    const p0 = points[i === 0 ? 0 : i - 1];
+    const p1 = points[i];
+    if (i > 0) {
+      const cp1x = p0.x + (p1.x - p0.x) / 2;
+      d += ` C ${cp1x},${p0.y} ${cp1x},${p1.y} ${p1.x},${p1.y}`;
+    }
+  }
+
+  curvePath.setAttribute("d", d);
 }
 
 function renderAlert(weather, forecast) {
@@ -610,41 +658,70 @@ function syncFavoriteButton() {
 function renderSavedLists() {
   renderChipList(favoritesList, state.favoriteCities, "No favorites yet");
   renderChipList(recentList, state.recentCities, "No recent searches yet");
+  if (typeof renderRecentCardsUI === 'function') renderRecentCardsUI(state.recentCities);
 }
 
 function renderChipList(container, cities, emptyText) {
+  // Legacy list - keep it for favorites compatibility
   container.innerHTML = "";
-
   if (!cities.length) {
     const placeholder = document.createElement("span");
-    placeholder.className = "empty-copy";
-    placeholder.innerText = emptyText;
+    placeholder.className = "empty-copy"; placeholder.innerText = emptyText;
     container.appendChild(placeholder);
     return;
   }
-
   cities.forEach((city) => {
     const button = document.createElement("button");
-    button.type = "button";
-    button.className = "saved-chip";
+    button.type = "button"; button.className = "saved-chip";
     button.innerText = `${city.name}, ${city.country}`;
-    button.classList.toggle("active", getCityKey(city.name, city.country) === state.currentCityKey);
-
     button.addEventListener("click", () => {
+      searchPanel.classList.add("hidden");
       searchInput.value = `${city.name}, ${city.country}`;
       fetchWeatherByCity(`${city.name},${city.country}`, true);
     });
-
     container.appendChild(button);
+  });
+}
+
+function renderRecentCardsUI(cities) {
+  if (!recentCardsEl) return;
+  recentCardsEl.innerHTML = "";
+  if (!cities.length) {
+    recentCardsEl.innerHTML = `<p style="color:rgba(255,255,255,0.6)">No recent searches.</p>`;
+    return;
+  }
+  
+  cities.forEach(async (city) => {
+    const card = document.createElement("div");
+    card.className = "r-card";
+    card.innerHTML = `<div class="r-info"><p>${city.name}</p><span>${city.country}</span></div><div class="r-visual"><p>...</p></div>`;
+    recentCardsEl.appendChild(card);
+    
+    // Fetch quick weather for this card
+    try {
+      const data = await fetchJSON(buildWeatherUrlByCity(`${city.name},${city.country}`));
+      card.innerHTML = `
+        <div class="r-info">
+          <p>${data.name}, ${data.sys.country}</p>
+          <span>${data.weather[0].main}</span>
+        </div>
+        <div class="r-visual">
+          <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}.png" alt="${data.weather[0].description}" />
+          <strong>${formatTemperature(data.main.temp)}</strong>
+        </div>
+      `;
+      card.addEventListener("click", () => fetchWeatherByCity(`${data.name},${data.sys.country}`, true));
+    } catch {
+      card.innerHTML = `<div class="r-info"><p>${city.name}</p><span>Error fading</span></div>`;
+    }
   });
 }
 
 /* ================= ERROR ================= */
 function showError(message) {
   hideAll();
-  if (currentTab === searchTab) searchForm.classList.add("active");
   errorMsg.innerText = message;
-  errorBox.classList.add("active");
+  errorBox.style.display = "flex";
 }
 
 function normalizeError(message) {
@@ -744,9 +821,7 @@ function buildDailyForecast(list) {
 
       return {
         label: new Date(`${key}T00:00:00Z`).toLocaleDateString([], {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
+          weekday: "long",
           timeZone: "UTC",
         }),
         min: Math.min(...temps),

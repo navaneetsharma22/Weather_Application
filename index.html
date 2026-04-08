@@ -1,122 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#08101d" />
-  <title>Weather App</title>
-
+  <title>WeatherWise - App</title>
   <link rel="icon" type="image/x-icon" href="./image/favicon.ico" />
   <link rel="apple-touch-icon" href="./image/favicon.ico" />
   <link rel="manifest" href="./site.webmanifest" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;700&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="index.css" />
 </head>
-
 <body>
   <div class="wrapper" data-weatherTheme="default">
-    <button class="theme-toggle" data-themeToggle aria-label="Toggle theme">🌙</button>
-
-    <div class="app-shell">
-      <header class="app-header">
-        <p class="eyebrow">Live Forecast Dashboard</p>
-        <h1>Weather App</h1>
-        <p class="subtitle">
-          Track today, the next few hours, and the coming days with faster search, saved places,
-          install support, and richer weather insights.
-        </p>
-      </header>
-
-      <section class="top-toolbar">
-        <div class="toolbar-group card-surface quick-actions">
-          <button class="toolbar-btn active" type="button" data-unitToggle data-unit="metric">°C</button>
-          <button class="toolbar-btn" type="button" data-unitToggle data-unit="imperial">°F</button>
-          <button class="toolbar-btn" type="button" data-refreshWeather>Refresh</button>
+    <div class="background-overlay" style="background-image: url('./image/stormy-bg.png')"></div>
+    <div class="app-container">
+      
+      <!-- Left Sidebar -->
+      <aside class="sidebar card-surface">
+        <div class="logo">WeatherWise</div>
+        
+        <div class="status-card panel">
+           <p class="card-label">Status</p>
+           <div class="status-chart">
+              <span class="status-indicator">↑ 23.8%</span>
+              <div class="status-badge">Dangerous</div>
+              <div class="status-icon">💬</div>
+              <svg class="status-svg" viewBox="0 0 100 50">
+                 <path d="M0,45 Q50,45 80,10 T100,5" stroke="url(#lineGradient)" stroke-width="3" fill="none" />
+                 <circle cx="80" cy="10" r="4" fill="white" />
+                 <circle cx="80" cy="10" r="8" fill="rgba(255,255,255,0.2)" />
+                 <defs>
+                   <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                     <stop offset="0%" stop-color="#38bdf8"/>
+                     <stop offset="100%" stop-color="#facc15"/>
+                   </linearGradient>
+                 </defs>
+              </svg>
+           </div>
+           <button class="see-more-link" data-seeMoreBtn>See More details &gt;</button>
         </div>
 
-        <div class="toolbar-group card-surface saved-locations-panel">
-          <div class="saved-row">
-            <p class="toolbar-label">Favorites</p>
-            <div class="saved-chip-list" data-favoritesList></div>
+        <div class="map-card panel">
+           <div class="map-header">
+             <p class="card-label">Select Area</p>
+             <div class="map-dots">
+                <span class="active"></span><span></span>
+             </div>
+           </div>
+           <div class="globe-proxy">
+             <div class="globe">
+               <div class="globe-point p1"></div>
+               <div class="globe-point p2"></div>
+               <div class="globe-point p3"></div>
+               <div class="globe-shadow"></div>
+             </div>
+           </div>
+           <p class="map-location" data-cityNameSidebar></p>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Header -->
+        <header class="top-nav">
+          <div class="nav-location">
+             <span class="loc-icon">📍</span>
+             <span data-cityName></span>, <span data-countryCode></span> <span class="nav-date">( <span data-navDate></span> )</span>
           </div>
-          <div class="saved-row">
-            <p class="toolbar-label">Recent</p>
+          <div class="nav-actions">
+            <!-- Search & Settings Menu -->
+            <button class="nav-btn btn" id="search-toggle" aria-label="Toggle Search">
+              <span style="transform: rotate(-45deg); display: inline-block; font-size:14px; font-weight:800;">⚲</span>
+            </button>
+            <button class="nav-btn btn download-btn" data-installBtn hidden>Download App</button>
+          </div>
+        </header>
+
+        <!-- Hidden Search Dropdown & Controls (contains legacy features) -->
+        <div class="search-panel hidden" id="search-panel">
+          <form class="form-container active" data-searchForm autocomplete="off">
+            <div class="search-input-group">
+              <input type="text" placeholder="Search for city..." data-searchInput />
+              <div class="autocomplete-list" data-autocompleteList></div>
+            </div>
+            <button class="btn icon-btn" type="button" aria-label="Use voice search" data-voiceSearch>🎙️</button>
+            <button class="btn search-btn" type="submit">🔍</button>
+          </form>
+          
+          <div class="quick-actions">
+            <button class="toolbar-btn active" type="button" data-unitToggle data-unit="metric">°C</button>
+            <button class="toolbar-btn" type="button" data-unitToggle data-unit="imperial">°F</button>
+            <button class="toolbar-btn" type="button" data-refreshWeather>Refresh</button>
+            <button class="theme-toggle" data-themeToggle aria-label="Toggle theme">🌙</button>
+          </div>
+
+          <!-- Legacy Tabs (hidden) -->
+          <div class="tab-container" style="display:none;">
+            <p class="tab current-tab" data-userWeather>Your Weather</p>
+            <p class="tab" data-searchWeather>Search Weather</p>
+          </div>
+          <!-- Saved Chips (hidden, used just to satisfy JS logic) -->
+          <div class="saved-row" style="display:none;">
+            <div class="saved-chip-list" data-favoritesList></div>
             <div class="saved-chip-list" data-recentList></div>
           </div>
         </div>
-      </section>
 
-      <div class="tab-container">
-        <p class="tab current-tab" data-userWeather>Your Weather</p>
-        <p class="tab" data-searchWeather>Search Weather</p>
-      </div>
-
-      <div class="weather-container">
-        <div class="sub-container grant-location-container card-surface">
-          <img src="./image/location.png" width="80" alt="Location icon" />
-          <p>Grant Location Access</p>
-          <p>Allow access to get weather information for your current location.</p>
-          <button class="Btn" data-grantAccess>Grant Access</button>
+        <div class="sub-container grant-location-container card-surface" id="location-grant" style="display:none;">
+           <img src="./image/location.png" width="80" alt="Location icon" />
+           <p>Grant Location Access</p>
+           <p>Allow access to get weather information for your current location.</p>
+           <button class="Btn" data-grantAccess>Grant Access</button>
         </div>
-
-        <form class="form-container" data-searchForm autocomplete="off">
-          <div class="search-input-group">
-            <input type="text" placeholder="Search for city..." data-searchInput />
-            <div class="autocomplete-list" data-autocompleteList></div>
-          </div>
-
-          <button class="btn icon-btn" type="button" aria-label="Use voice search" data-voiceSearch>
-            <span class="action-symbol">Mic</span>
-          </button>
-
-          <button class="btn search-btn" type="submit" aria-label="Search city weather">
-            <span class="action-symbol">Go</span>
-          </button>
-        </form>
 
         <div class="sub-container loading-container card-surface">
           <img src="./image/loading.gif" width="140" alt="Loading" />
           <p>Loading weather details...</p>
         </div>
 
-        <div class="sub-container error-container card-surface">
+        <div class="sub-container error-container card-surface" style="display:none;">
           <p class="error-title">Something went wrong</p>
           <p data-errorMessage></p>
         </div>
 
-        <div class="sub-container user-info-container">
-          <section class="weather-overview card-surface">
-            <div class="weather-copy">
-              <div class="name">
-                <p data-cityName></p>
-                <img data-countryIcon alt="Country flag" />
-              </div>
-
-              <p class="weather-label">Current Conditions</p>
-              <p data-weatherDesc></p>
-              <p class="temperature-row">
-                <span data-temperature></span>
-                <button class="favorite-btn" type="button" data-favoriteBtn aria-label="Save city to favorites">
-                  ☆
-                </button>
-              </p>
-              <p class="meta-line" data-localTime></p>
-            </div>
-
-            <div class="weather-visual">
-              <img data-weatherIcon alt="Weather icon" />
-            </div>
-          </section>
-
+        <!-- Weather Display Info -->
+        <div class="weather-dashboard active user-info-container" id="weather-dashboard">
+          
           <section class="alert-banner card-surface" data-alertBanner hidden>
             <p class="alert-title" data-alertTitle></p>
             <p class="alert-copy" data-alertCopy></p>
           </section>
 
+          <div class="hero-section">
+             <div class="hero-left">
+                <div class="temp-block">
+                  <h1 class="huge-temp" data-temperature>--°</h1>
+                  <div class="high-low">
+                     <span class="hl-btn">H</span> <span class="hl-val" data-tempHigh>--°</span><br>
+                     <span class="hl-btn">L</span> <span class="hl-val" data-tempLow>--°</span>
+                  </div>
+                </div>
+                <h2 class="weather-desc" data-weatherDesc>--</h2>
+                <!-- Some visual mapping -->
+                <img data-countryIcon alt="Country flag" style="display:none;" />
+                <img data-weatherIcon alt="Weather icon" style="display:none;" />
+                <div class="local-time" data-localTime style="display:none;"></div>
+                <button class="favorite-btn modal-btn" type="button" data-favoriteBtn aria-label="Save">☆</button>
+             </div>
+             
+             <div class="hero-right">
+                <p class="flavor-text">With real time data and advanced technology, we provide reliable forecasts for any location around the world.</p>
+                <div class="recent-searches">
+                   <div class="recent-header">
+                      <span>Recently Searched</span>
+                      <a href="#" class="see-all">See All &gt;</a>
+                   </div>
+                   <div class="recent-cards" data-recentCards>
+                      <!-- populated by js -->
+                      <p>Loading...</p>
+                   </div>
+                </div>
+             </div>
+          </div>
+          
+          <div class="forecast-section">
+            <div class="forecast-labels" id="forecast-labels">
+              <!-- populated dynamically -->
+            </div>
+            <div class="forecast-graph">
+               <svg class="weekly-curve" id="weekly-curve" preserveAspectRatio="none" viewBox="0 0 1000 100">
+                 <path id="curve-path" d="" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none" />
+               </svg>
+            </div>
+            <div class="forecast-temps" id="forecast-temps">
+              <!-- populated dynamically -->
+            </div>
+            <div class="hourly-forecast" data-hourlyForecast style="display:none;"></div>
+            <div class="daily-forecast" data-dailyForecast style="display:none;"></div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- Details Modal containing existing extensive widgets -->
+    <div class="details-modal" id="details-modal">
+       <div class="details-modal-content card-surface">
+          <div class="details-header">
+             <h3>More Weather Details</h3>
+             <button class="btn close-modal" id="close-modal">✕</button>
+          </div>
           <div class="parameter-container">
             <div class="parameter">
               <img src="./image/wind.png" alt="Wind icon" />
@@ -137,7 +211,7 @@
             </div>
 
             <div class="parameter aqi-card">
-              <img src="./image/AQI.png" alt="AQI icon" />
+              <img src="./image/aqi.png" alt="AQI icon" />
               <p>Air Quality</p>
               <p class="aqi-text">
                 <span data-aqi-value>--</span>
@@ -175,34 +249,10 @@
               <strong data-minMax></strong>
             </article>
           </section>
-
-          <section class="forecast-panel card-surface">
-            <div class="section-head">
-              <div>
-                <p class="section-kicker">Next Hours</p>
-                <h2>Hourly Forecast</h2>
-              </div>
-            </div>
-            <div class="hourly-forecast" data-hourlyForecast></div>
-          </section>
-
-          <section class="forecast-panel card-surface">
-            <div class="section-head">
-              <div>
-                <p class="section-kicker">Next 5 Days</p>
-                <h2>Daily Forecast</h2>
-              </div>
-            </div>
-            <div class="daily-forecast" data-dailyForecast></div>
-          </section>
-
-          <button class="install-btn Btn" type="button" data-installBtn hidden>Install App</button>
-        </div>
-      </div>
+       </div>
     </div>
   </div>
 
   <script src="main.js"></script>
 </body>
-
 </html>
